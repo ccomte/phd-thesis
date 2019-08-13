@@ -1,6 +1,6 @@
 # Resource management in computer clusters: algorithm design and performance analysis
 
-Simulation results presented in my Ph.D. thesis.
+Numerical results presented in my Ph.D. thesis.
 
 Author: Céline Comte
 
