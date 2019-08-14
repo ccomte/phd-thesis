@@ -18,10 +18,6 @@ gcc -o random-hyperexp-scheduling.out sources/random-hyperexp-scheduling.c sourc
 gcc -o random-zipf-fcfs.out sources/random-zipf-fcfs.c sources/utils.c -lm
 gcc -o random-zipf-scheduling.out sources/random-zipf-scheduling.c sources/utils.c -lm
 
-#gcc -o random-insensitive.out random-insensitive.c
-
-
-
 
 
 # N = 2 pools, S = 3 servers
@@ -55,13 +51,13 @@ gcc -o random-zipf-scheduling.out sources/random-zipf-scheduling.c sources/utils
 
 
 # S = 100 servers
-#./random-bimodal-fcfs.out data/random-2-bimodal-0 2 1 5 25 1
-#./random-bimodal-scheduling.out data/random-2-bimodal-1 2 1 5 25 1 1
-#./random-bimodal-scheduling.out data/random-2-bimodal-5 2 1 5 25 1 5
+./random-bimodal-fcfs.out data/random-2-bimodal-0 2 1 5 25 1
+./random-bimodal-scheduling.out data/random-2-bimodal-1 2 1 5 25 1 1
+./random-bimodal-scheduling.out data/random-2-bimodal-5 2 1 5 25 1 5
 
-#./random-hyperexp-fcfs.out data/random-2-hyperexp-0 2 1 5 25 1
-#./random-hyperexp-scheduling.out data/random-2-hyperexp-1 2 1 5 25 1 1
-#./random-hyperexp-scheduling.out data/random-2-hyperexp-5 2 1 5 25 1 5
+./random-hyperexp-fcfs.out data/random-2-hyperexp-0 2 1 5 25 1
+./random-hyperexp-scheduling.out data/random-2-hyperexp-1 2 1 5 25 1 1
+./random-hyperexp-scheduling.out data/random-2-hyperexp-5 2 1 5 25 1 5
 
 ./random-zipf-fcfs.out data/random-2-zipf-0 2 200 2
 ./random-zipf-scheduling.out data/random-2-zipf-1 2 200 2 1
@@ -70,13 +66,13 @@ gcc -o random-zipf-scheduling.out sources/random-zipf-scheduling.c sources/utils
 
 
 # S = 100 servers
-#./random-bimodal-fcfs.out data/random-3-bimodal-0 3 1 5 25 1
-#./random-bimodal-scheduling.out data/random-3-bimodal-1 3 1 5 25 1 1
-#./random-bimodal-scheduling.out data/random-3-bimodal-5 3 1 5 25 1 5
+./random-bimodal-fcfs.out data/random-3-bimodal-0 3 1 5 25 1
+./random-bimodal-scheduling.out data/random-3-bimodal-1 3 1 5 25 1 1
+./random-bimodal-scheduling.out data/random-3-bimodal-5 3 1 5 25 1 5
 
-#./random-hyperexp-fcfs.out data/random-3-hyperexp-0 3 1 5 25 1
-#./random-hyperexp-scheduling.out data/random-3-hyperexp-1 3 1 5 25 1 1
-#./random-hyperexp-scheduling.out data/random-3-hyperexp-5 3 1 5 25 1 5
+./random-hyperexp-fcfs.out data/random-3-hyperexp-0 3 1 5 25 1
+./random-hyperexp-scheduling.out data/random-3-hyperexp-1 3 1 5 25 1 1
+./random-hyperexp-scheduling.out data/random-3-hyperexp-5 3 1 5 25 1 5
 
 ./random-zipf-fcfs.out data/random-3-zipf-0 3 200 2
 ./random-zipf-scheduling.out data/random-3-zipf-1 3 200 2 1
