@@ -4,19 +4,19 @@ mkdir -p data
 
 echo 'Compile'
 echo
-gcc -o toy-bimodal-fcfs.out toy-bimodal-fcfs.c utils.c -lm
-gcc -o toy-bimodal-scheduling.out toy-bimodal-scheduling.c utils.c -lm
-gcc -o toy-hyperexp-fcfs.out toy-hyperexp-fcfs.c utils.c -lm
-gcc -o toy-hyperexp-scheduling.out toy-hyperexp-scheduling.c utils.c -lm
-gcc -o toy-zipf-fcfs.out toy-zipf-fcfs.c utils.c -lm
-gcc -o toy-zipf-scheduling.out toy-zipf-scheduling.c utils.c -lm
+gcc -o toy-bimodal-fcfs.out sources/toy-bimodal-fcfs.c sources/utils.c -lm
+gcc -o toy-bimodal-scheduling.out sources/toy-bimodal-scheduling.c sources/utils.c -lm
+gcc -o toy-hyperexp-fcfs.out sources/toy-hyperexp-fcfs.c sources/utils.c -lm
+gcc -o toy-hyperexp-scheduling.out sources/toy-hyperexp-scheduling.c sources/utils.c -lm
+gcc -o toy-zipf-fcfs.out sources/toy-zipf-fcfs.c sources/utils.c -lm
+gcc -o toy-zipf-scheduling.out sources/toy-zipf-scheduling.c sources/utils.c -lm
 
-gcc -o random-bimodal-fcfs.out random-bimodal-fcfs.c utils.c -lm
-gcc -o random-bimodal-scheduling.out random-bimodal-scheduling.c utils.c -lm
-gcc -o random-hyperexp-fcfs.out random-hyperexp-fcfs.c utils.c -lm
-gcc -o random-hyperexp-scheduling.out random-hyperexp-scheduling.c utils.c -lm
-gcc -o random-zipf-fcfs.out random-zipf-fcfs.c utils.c -lm
-gcc -o random-zipf-scheduling.out random-zipf-scheduling.c utils.c -lm
+gcc -o random-bimodal-fcfs.out sources/random-bimodal-fcfs.c sources/utils.c -lm
+gcc -o random-bimodal-scheduling.out sources/random-bimodal-scheduling.c sources/utils.c -lm
+gcc -o random-hyperexp-fcfs.out sources/random-hyperexp-fcfs.c sources/utils.c -lm
+gcc -o random-hyperexp-scheduling.out sources/random-hyperexp-scheduling.c sources/utils.c -lm
+gcc -o random-zipf-fcfs.out sources/random-zipf-fcfs.c sources/utils.c -lm
+gcc -o random-zipf-scheduling.out sources/random-zipf-scheduling.c sources/utils.c -lm
 
 #gcc -o random-insensitive.out random-insensitive.c
 
