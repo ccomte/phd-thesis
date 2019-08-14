@@ -13,8 +13,8 @@ gcc -o toy-zipf-scheduling.out toy-zipf-scheduling.c utils.c -lm
 
 gcc -o random-bimodal-fcfs.out random-bimodal-fcfs.c utils.c -lm
 gcc -o random-bimodal-scheduling.out random-bimodal-scheduling.c utils.c -lm
-#gcc -o random-hyperexp-fcfs.out random-hyperexp-fcfs.c utils.c -lm
-#gcc -o random-hyperexp-scheduling.out random-hyperexp-scheduling.c utils.c -lm
+gcc -o random-hyperexp-fcfs.out random-hyperexp-fcfs.c utils.c -lm
+gcc -o random-hyperexp-scheduling.out random-hyperexp-scheduling.c utils.c -lm
 #gcc -o random-zipf-fcfs.out random-zipf-fcfs.c utils.c -lm
 #gcc -o random-zipf-scheduling.out random-zipf-scheduling.c utils.c -lm
 
@@ -59,10 +59,18 @@ gcc -o random-bimodal-scheduling.out random-bimodal-scheduling.c utils.c -lm
 #./random-bimodal-scheduling.out data/random-2-bimodal-1 2 1 5 25 1 1
 #./random-bimodal-scheduling.out data/random-2-bimodal-5 2 1 5 25 1 5
 
+./random-hyperexp-fcfs.out data/random-2-hyperexp-0 2 1 5 25 1
+./random-hyperexp-scheduling.out data/random-2-hyperexp-1 2 1 5 25 1 1
+./random-hyperexp-scheduling.out data/random-2-hyperexp-5 2 1 5 25 1 5
+
 # S = 100 servers
 #./random-bimodal-fcfs.out data/random-3-bimodal-0 3 1 5 25 1
 #./random-bimodal-scheduling.out data/random-3-bimodal-1 3 1 5 25 1 1
 #./random-bimodal-scheduling.out data/random-3-bimodal-5 3 1 5 25 1 5
+
+./random-hyperexp-fcfs.out data/random-3-hyperexp-0 3 1 5 25 1
+./random-hyperexp-scheduling.out data/random-3-hyperexp-1 3 1 5 25 1 1
+./random-hyperexp-scheduling.out data/random-3-hyperexp-5 3 1 5 25 1 5
 
 
 

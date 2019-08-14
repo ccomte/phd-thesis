@@ -14,8 +14,8 @@
 #define S 100           // number of servers
 #define MAX 100000      // queue length
 #define R 10            // number of estimates per point
-#define WARMUP 10000    // number of warm-up steps
-#define STEADY 10000    // number of steps in steady state
+#define WARMUP 100000   // number of warm-up steps
+#define STEADY 100000   // number of steps in steady state
 
 // probability distributions
 double uniform();     // uniform on (0,1)

@@ -11,12 +11,10 @@ char name[500];     // prefix of the output file
 
 int d;              // degree of parallelism
 
-// job sizes with a bimodal number of exponentially distributed phases
-// a proportion p of jobs have sigma1 phases
-// and a proportion 1-p of jobs have sigma2 phases
-long double p;
-int sigma1, sigma2;
-
+// Hyperexponential job sizes
+// A proportion p of jobs have an exponentially distributed size with mean sigma1
+// and a proportion 1-p of jobs have an exponentially distributed size with mean sigma2
+long double p, sigma1, sigma2;
 
 
 
@@ -51,8 +49,8 @@ long double average_service_rate;   // average service rate experienced over all
 
 // Queue
 
-void arrival (int sigma);
-// add a job with size sigma at the end of the queue and draws its servers
+void arrival (long double sigma);
+// add a job with mean size sigma at the end of the queue and draws its servers
 void departure (int k);     // remove the job in position k of the queue
 void update_rates ();       // update the service rates of the jobs
 
@@ -75,11 +73,11 @@ FILE *open_input_file (char *type);
 
 int n;                // number of jobs in the queue
 int* class[MAX];      // sequence of job server sets
-int size[MAX];        // sequence of job sizes (number of remaining phases)
+long double size[MAX];        // sequence of job sizes
 long double completion[MAX];  // sequence of jobs phase completion rates
 
 
-void arrival (int sigma) {
+void arrival (long double sigma) {
   int j, s, count, *servers;
 
   // draw the servers of the new job
@@ -95,7 +93,7 @@ void arrival (int sigma) {
     }
   }
 
-  // update the microstate
+  // update the queue microstate
   class[n] = servers;
   size[n] = sigma;
   ++n;
@@ -113,7 +111,7 @@ void departure (int k) {
   // free the server array
   free(class[k]);
 
-  // update the microstate
+  // update the queue microstate
   --n;
   for (l = k ; l < n ; ++l) {
     class[l] = class[l+1];
@@ -143,7 +141,7 @@ void update_rates () {
       if (!is_active[s]) {
         is_active[s] = 1;
         ++total_active_servers;
-        completion[k] += 1.;
+        completion[k] += 1. / size[k];
       }
     }
 
@@ -212,9 +210,7 @@ void jump () {
       v += completion[k];
     }
 
-    // update the size
-    --size[k];
-    if (size[k] == 0) departure(k);
+    departure(k);
   }
 }
 
@@ -236,24 +232,25 @@ void read_inputs_from_string (char **argv) {
   // degree of parallelism
   d = atoi(argv[++r]);
 
-  // parameter of the "bimodal" distribution
+  // parameter of the hyperexponential distribution
   p = atof(argv[++r]);
   p /= p + atof(argv[++r]);
-  sigma1 = atoi(argv[++r]);
-  sigma2 = atoi(argv[++r]);
+  sigma1 = atof(argv[++r]);
+  sigma2 = atof(argv[++r]);
 }
 
 void print_inputs () {
   int i, j, s;
 
-  printf("\n\n|| ----- SIMULATION - RANDOM - BIMODAL ----- ||\n\n");
+  printf("\n\n|| ----- SIMULATION - RANDOM - HYPEREXPONENTIAL ----- ||\n\n");
 
   printf("Output file prefix name: %s\n\n", name);
 
   printf("S = %d\t\td = %d\n\n", S, d);
 
-  printf("Parameter of the \"bimodal\" distribution:\n");
-  printf("p = %Le\tsigma1 = %d\tsigma2 = %d\n\n", p, sigma1, sigma2);
+  printf("Parameter of the hyperexponential distribution:\n");
+  printf("p = %Le\tsigma1 = %Le\tsigma2 = %Le\n", p, sigma1, sigma2);
+  printf("Mean job size = %Le\n\n", p * sigma1 + (1.-p) * sigma2);
 }
 
 FILE *open_output_file (char *type) {

@@ -10,13 +10,12 @@
 char name[500];     // prefix of the output file
 
 int d;              // degree of parallelism
+long double tau;    // timeout rate of the servers
 
-// job sizes with a bimodal number of exponentially distributed phases
-// a proportion p of jobs have sigma1 phases
-// and a proportion 1-p of jobs have sigma2 phases
-long double p;
-int sigma1, sigma2;
-
+// Hyperexponential job sizes
+// A proportion p of jobs have an exponentially distributed size with mean sigma1
+// and a proportion 1-p of jobs have an exponentially distributed size with mean sigma2
+long double p, sigma1, sigma2;
 
 
 
@@ -26,6 +25,7 @@ int sigma1, sigma2;
 long double delta;  // scaling of the confidence interval
 
 long double lambda;           // external arrival rate
+long double total_timeout;    // total timeout rates
 long double total_completion; // total completion rates
 
 int is_active[S]; // tracks the activity of the servers
@@ -51,9 +51,10 @@ long double average_service_rate;   // average service rate experienced over all
 
 // Queue
 
-void arrival (int sigma);
-// add a job with size sigma at the end of the queue and draws its servers
+void arrival (long double sigma);
+// add a job with mean size sigma at the end of the queue and draws its servers
 void departure (int k);     // remove the job in position k of the queue
+void interruption (int k);  // move the job in position k to the end of the queue
 void update_rates ();       // update the service rates of the jobs
 
 // Simulation
@@ -75,11 +76,12 @@ FILE *open_input_file (char *type);
 
 int n;                // number of jobs in the queue
 int* class[MAX];      // sequence of job server sets
-int size[MAX];        // sequence of job sizes (number of remaining phases)
+long double size[MAX];        // sequence of job sizes
+long double timeout[MAX];     // sequence of job timeout rates
 long double completion[MAX];  // sequence of jobs phase completion rates
 
 
-void arrival (int sigma) {
+void arrival (long double sigma) {
   int j, s, count, *servers;
 
   // draw the servers of the new job
@@ -121,11 +123,29 @@ void departure (int k) {
   }
 }
 
+void interruption (int k) {
+  int l, *servers;
+  long double sigma;
+
+  servers = class[k];
+  sigma = size[k];
+
+  // update the microstate
+  for (l = k ; l < n-1 ; ++l) {
+    class[l] = class[l+1];
+    size[l] = size[l+1];
+  }
+
+  class[n-1] = servers;
+  size[n-1] = sigma;
+}
+
 void update_rates () {
   int j, k, s, total_active_servers;
   int *servers;
 
   // initialization
+  total_timeout = 0.;
   total_completion = 0.;
   for (s = 0 ; s < S ; ++s) is_active[s] = 0;
   total_active_servers = 0;
@@ -133,6 +153,7 @@ void update_rates () {
   // greedy server allocation
   k = 0;
   while (k < n && total_active_servers < S) {
+    timeout[k] = 0.;
     completion[k] = 0.;
     servers = class[k];
 
@@ -143,10 +164,12 @@ void update_rates () {
       if (!is_active[s]) {
         is_active[s] = 1;
         ++total_active_servers;
-        completion[k] += 1.;
+        timeout[k] += tau;
+        completion[k] += 1. / size[k];
       }
     }
 
+    total_timeout += timeout[k];
     total_completion += completion[k];
 
     ++k;
@@ -166,6 +189,7 @@ void simulation () {
   // initialization
   T = 0.;
   n = 0;
+  total_timeout = 0.;
   total_completion = 0.;
   xT = 0.;
 
@@ -181,7 +205,7 @@ void simulation () {
     update_rates();
 
     // metric update
-    t = exponential(lambda + total_completion);
+    t = exponential(lambda + total_timeout + total_completion);
     T += t;
     xT += n * t;
   }
@@ -194,7 +218,7 @@ void jump () {
   int k;
   long double u, v;
 
-  u = (lambda + total_completion) * uniform();
+  u = (lambda + total_timeout + total_completion) * uniform();
 
   if (u <= lambda) {
     // external arrival
@@ -202,19 +226,30 @@ void jump () {
     if (uniform() < p) arrival(sigma1);
     else arrival(sigma2);
 
+  } else if (u <= lambda + total_timeout) {
+    // the timeout of a server expired
+
+    v = lambda + timeout[0];
+    k = 0;
+    while (u > v) {
+      ++k;
+      v += timeout[k];
+    }
+
+    // move the job to the end of the queue
+    interruption(k);
+
   } else {
     // completion of the phase of a job
 
-    v = lambda + completion[0];
+    v = lambda + total_timeout + completion[0];
     k = 0;
     while (u > v) {
       ++k;
       v += completion[k];
     }
 
-    // update the size
-    --size[k];
-    if (size[k] == 0) departure(k);
+    departure(k);
   }
 }
 
@@ -236,24 +271,33 @@ void read_inputs_from_string (char **argv) {
   // degree of parallelism
   d = atoi(argv[++r]);
 
-  // parameter of the "bimodal" distribution
+  // parameter of the hyperexponential distribution
   p = atof(argv[++r]);
   p /= p + atof(argv[++r]);
-  sigma1 = atoi(argv[++r]);
-  sigma2 = atoi(argv[++r]);
+  sigma1 = atof(argv[++r]);
+  sigma2 = atof(argv[++r]);
+
+  // timer rate
+  m = atoi(argv[++r]);
+  tau = m / (p * sigma1 + (1.-p) * sigma2);
 }
 
 void print_inputs () {
   int i, j, s;
 
-  printf("\n\n|| ----- SIMULATION - RANDOM - BIMODAL ----- ||\n\n");
+  printf("\n\n|| ----- SIMULATION - RANDOM - HYPEREXPONENTIAL ----- ||\n\n");
 
   printf("Output file prefix name: %s\n\n", name);
 
   printf("S = %d\t\td = %d\n\n", S, d);
 
-  printf("Parameter of the \"bimodal\" distribution:\n");
-  printf("p = %Le\tsigma1 = %d\tsigma2 = %d\n\n", p, sigma1, sigma2);
+  printf("Parameter of the hyperexponential distribution:\n");
+  printf("p = %Le\tsigma1 = %Le\tsigma2 = %Le\n", p, sigma1, sigma2);
+  printf("Mean job size = %Le\n\n", p * sigma1 + (1.-p) * sigma2);
+
+  printf("Mean number of interruptions per job = %Le\n",
+      tau * (p * sigma1 + (1.-p) * sigma2));
+  printf("Timer rate = %Le\n\n", tau);
 }
 
 FILE *open_output_file (char *type) {
@@ -323,6 +367,7 @@ int main(int argc, char **argv) {
     }
     fprintf(delay_file, "%Le,%Le,%Le\n", rho,
         average_delay, delta * sqrt(deviation / (R-1)) / sqrt(R));
+    fprintf(delay_file, "\n");
 
     // output service rate
     average_service_rate /= R;
