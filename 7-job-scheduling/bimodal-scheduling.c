@@ -1,5 +1,5 @@
 #include "utils.h"
-// defines the constants N, S, MAX, and R
+// defines the constants N, S, MAX, R, WARMUP, and STEADY
 
 
 
@@ -27,8 +27,6 @@ int sigma1, sigma2;
 
 /*** VARIABLES OF THE SIMULATION ***/
 
-int warmup;         // number of warm-up steps
-int steady;         // number of steps in steady-state
 long double delta;  // scaling of the interval
 
 int x[N];         // number of jobs of each class in the queue
@@ -200,13 +198,13 @@ void simulation () {
   }
 
   // warmup
-  for (step = 0 ; step < warmup ; ++step) {
+  for (step = 0 ; step < WARMUP ; ++step) {
     jump();
     update_rates();
   }
 
   // steady state
-  for (step = 0 ; step < steady ; ++step) {
+  for (step = 0 ; step < STEADY ; ++step) {
     jump();
     update_rates();
 
@@ -397,8 +395,6 @@ int main(int argc, char **argv) {
   service_rate_file = open_output_file("service-rate");
   printf("\n");
 
-  warmup = 1000000;
-  steady = 1000000;
   delta = 1.96;     // P(-delta < X < delta) = 95% with X ~ N(0,1)
 
   for (rho = .05 ; rho < .995 ; rho += .05) {
