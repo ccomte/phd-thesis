@@ -305,7 +305,7 @@ FILE *open_output_file (char *type) {
   FILE *file = NULL;
 
   // build the file name
-  sprintf(file_name, "%s-%s", name, type);
+  sprintf(file_name, "%s-%s.csv", name, type);
   file = fopen(file_name, "w");
 
   // exit with an error if the file couldn't be opened
@@ -353,8 +353,8 @@ int main(int argc, char **argv) {
   service_rate_file = open_output_file("service-rate");
   printf("\n");
 
-  warmup = 10000;
-  steady = 10000;
+  warmup = 1000000;
+  steady = 1000000;
   delta = 1.96;     // P(-delta < X < delta) = 95% (with X ~ N(0,1))
 
   for (rho = .05 ; rho < .995 ; rho += .05) {
