@@ -9,7 +9,7 @@ gcc -o bimodal-fcfs.out bimodal-fcfs.c utils.c -lm
 gcc -o hyperexp-scheduling.out hyperexp-scheduling.c utils.c -lm
 gcc -o hyperexp-fcfs.out hyperexp-fcfs.c utils.c -lm
 gcc -o zipf-scheduling.out zipf-scheduling.c utils.c -lm
-#gcc -o zipf-fcfs.out zipf-fcfs.c utils.c -lm
+gcc -o zipf-fcfs.out zipf-fcfs.c utils.c -lm
 
 #gcc -o random-bimodal-scheduling.out random-bimodal-scheduling.c utils.c -lm
 #gcc -o random-bimodal-fcfs.out random-bimodal-fcfs.c utils.c -lm
@@ -29,13 +29,13 @@ gcc -o zipf-scheduling.out zipf-scheduling.c utils.c -lm
 #./bimodal-scheduling.out data/m-bimodal-1 1 1 2 0 1 2 1 2 1 5 25 1 1
 #./bimodal-scheduling.out data/m-bimodal-5 1 1 2 0 1 2 1 2 1 5 25 1 5
 
-./hyperexp-fcfs.out data/m-hyperexp-0 1 1 2 0 1 2 1 2 1 5 25 1
+#./hyperexp-fcfs.out data/m-hyperexp-0 1 1 2 0 1 2 1 2 1 5 25 1
 #./hyperexp-scheduling.out data/m-hyperexp-1 1 1 2 0 1 2 1 2 1 5 25 1 1
 #./hyperexp-scheduling.out data/m-hyperexp-5 1 1 2 0 1 2 1 2 1 5 25 1 5
 
 #./zipf-scheduling.out data/m-zipf-1 1 1 2 0 1 2 1 2 200 2 1
 #./zipf-scheduling.out data/m-zipf-5 1 1 2 0 1 2 1 2 200 2 5
-#./zipf-fcfs.out data/m-zipf-0 1 1 2 0 1 2 1 2 200 2
+./zipf-fcfs.out data/m-zipf-0 1 1 2 0 1 2 1 2 200 2
 
 
 
