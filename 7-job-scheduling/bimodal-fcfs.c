@@ -1,9 +1,5 @@
 #include "utils.h"
-
-#define N 2           // number of job classes
-#define S 3           // number of servers
-#define MAX 100000    // queue length
-#define R 10          // number of estimates per point
+// defines the constants N, S, MAX, and R
 
 
 

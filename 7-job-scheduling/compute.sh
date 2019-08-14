@@ -35,14 +35,14 @@ gcc -o zipf-fcfs.out zipf-fcfs.c utils.c -lm
 
 #./zipf-scheduling.out data/m-zipf-1 1 1 2 0 1 2 1 2 200 2 1
 #./zipf-scheduling.out data/m-zipf-5 1 1 2 0 1 2 1 2 200 2 5
-./zipf-fcfs.out data/m-zipf-0 1 1 2 0 1 2 1 2 200 2
+#./zipf-fcfs.out data/m-zipf-0 1 1 2 0 1 2 1 2 200 2
 
 
 
 # N = 2 job classes, S = 2 servers
-#./zipf-scheduling.out data/n-zipf-1-200 1 1 2 0 1 1 1 200 2 1
-#./zipf-scheduling.out data/n-zipf-5-200 1 1 2 0 1 1 1 200 2 5
-#./zipf-fcfs.out data/n-zipf-fcfs-200 1 1 2 0 1 1 1 200 2
+./zipf-fcfs.out data/n-zipf-0 1 1 2 0 1 1 1 200 2
+./zipf-scheduling.out data/n-zipf-1 1 1 2 0 1 1 1 200 2 1
+./zipf-scheduling.out data/n-zipf-5 1 1 2 0 1 1 1 200 2 5
 
 
 
