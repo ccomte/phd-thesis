@@ -11,12 +11,12 @@
 
 // global constants
 #define R 10            // number of independent runs for each data point
-#define WARMUP 100000   // number of warm-up steps
-#define STEADY 100000   // number of steps in steady state
+#define WARMUP 10000    // number of warm-up steps
+#define STEADY 10000    // number of steps in steady state
 #define MAX 100000      // queue length
 
 // constants that depend on the example
-#define N 2             // number of pools (only relevant for the toy examples)
+#define I 2             // number of pools (only relevant for the toy examples)
 #define S 100           // number of servers
 
 // probability distributions

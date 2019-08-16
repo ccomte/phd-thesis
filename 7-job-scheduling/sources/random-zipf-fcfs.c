@@ -356,8 +356,6 @@ int main(int argc, char **argv) {
   delta = 1.96;     // P(-delta < X < delta) = 95% (with X ~ N(0,1))
 
   for (rho = .05 ; rho < .995 ; rho += .05) {
-    printf("rho = %Le\n", rho);
-
     // initialization
     lambda = rho * S / mean_size;
     average_delay = 0.;
@@ -398,6 +396,6 @@ int main(int argc, char **argv) {
   fclose(delay_file);
   fclose(service_rate_file);
 
-  printf("\n\n");
+  printf("\n");
   exit(0);
 }

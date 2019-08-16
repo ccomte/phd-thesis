@@ -1,5 +1,5 @@
 #include "utils.h"
-// defines the constants N, S, MAX, R, WARMUP, and STEADY
+// defines the constants I, S, MAX, R, WARMUP, and STEADY
 
 
 
@@ -9,10 +9,10 @@
 
 char name[500];     // prefix of the output file
 
-long double proportion[N];   // distribution of the arrivals between classes
+long double proportion[I];   // distribution of the arrivals between classes
 
-int degree[N];      // number of servers that can process each class
-int* neighbors[N];  // array of servers which can serve the jobs of each class
+int degree[I];      // number of servers that can process each class
+int* neighbors[I];  // array of servers that can serve the jobs of each class
 
 long double tau;    // timeout rate of the servers
 
@@ -33,14 +33,14 @@ long double mean_size;
 
 long double delta;  // scaling of the intervall
 
-int x[N];         // number of jobs of each class in the queue
+int x[I];         // number of jobs of each class in the queue
 
-long double lambda[N];        // per-class arrival rates
+long double lambda[I];        // per-class arrival rates
 long double total_lambda;     // total arrival rate
 long double total_timeout;    // total timeout rates
 long double total_completion; // total completion rates
 
-int is_served[N]; // says if a job of the class was already served
+int is_served[I]; // says if a job of the class was already served
 int is_active[S]; // tracks the activity of the servers
 
 
@@ -50,11 +50,11 @@ int is_active[S]; // tracks the activity of the servers
 /*** OUTPUTS ***/
 
 long double T;                  // total simulation time
-long double xT[N];              // cumulative number of jobs of each class
-long double delay[N][R];        // delays experienced at each run
-long double average_delay[N];   // average delay experienced over all runs
-long double service_rate[N][R];       // service rates experienced at each run
-long double average_service_rate[N];  // average service rate experienced over all runs
+long double xT[I];              // cumulative number of jobs of each class
+long double delay[I][R];        // delays experienced at each run
+long double average_delay[I];   // average delay experienced over all runs
+long double service_rate[I][R];       // service rates experienced at each run
+long double average_service_rate[I];  // average service rate experienced over all runs
 
 
 
@@ -153,7 +153,7 @@ void update_rates () {
   // initialization
   total_timeout = 0.;
   total_completion = 0.;
-  for (i = 0 ; i < N ; ++i) is_served[i] = 0;
+  for (i = 0 ; i < I ; ++i) is_served[i] = 0;
   for (s = 0 ; s < S ; ++s) is_active[s] = 0;
   total_active_servers = 0;
 
@@ -251,7 +251,7 @@ void simulation () {
   n = 0;
   total_timeout = 0.;
   total_completion = 0.;
-  for (i = 0 ; i < N ; ++i) {
+  for (i = 0 ; i < I ; ++i) {
     x[i] = 0;
     xT[i] = 0.;
   }
@@ -270,11 +270,11 @@ void simulation () {
     // metric update
     t = exponential(total_lambda + total_timeout + total_completion);
     T += t;
-    for (i = 0 ; i < N ; ++i) xT[i] += x[i] * t;
+    for (i = 0 ; i < I ; ++i) xT[i] += x[i] * t;
   }
 
   // metrics
-  for (i = 0 ; i < N ; ++i) xT[i] /= T;
+  for (i = 0 ; i < I ; ++i) xT[i] /= T;
 }
 
 void jump () {
@@ -342,15 +342,15 @@ void read_inputs_from_string (char **argv) {
 
   // arrival rates
   total = 0.;
-  for (i = 0 ; i < N ; ++i) {
+  for (i = 0 ; i < I ; ++i) {
     proportion[i] = atof(argv[++r]);
     total += proportion[i];
   }
 
-  for (i = 0 ; i < N ; ++i) proportion[i] /= total;
+  for (i = 0 ; i < I ; ++i) proportion[i] /= total;
 
   // compatibility constraints
-  for (i = 0 ; i < N ; ++i) {
+  for (i = 0 ; i < I ; ++i) {
     degree[i] = atoi(argv[++r]);
     neighbors[i] = malloc(degree[i] * sizeof(int));
     for (j = 0 ; j < degree[i] ; ++j) {
@@ -377,14 +377,14 @@ void print_inputs () {
 
   printf("Output file prefix name: %s\n\n", name);
 
-  printf("N = %d\tS = %d\n\n", N, S);
+  printf("I = %d\tS = %d\n\n", I, S);
 
   printf("Normalized arrival rates:\n");
-  for (i = 0 ; i < N ; ++i) printf("Class %d:\t%Le\n", i, proportion[i]);
+  for (i = 0 ; i < I ; ++i) printf("Class %d:\t%Le\n", i, proportion[i]);
   printf("\n");
 
   printf("Compatibility constraints:\n");
-  for (i = 0 ; i < N ; ++i) {
+  for (i = 0 ; i < I ; ++i) {
     printf("Class %d:\t", i);
     for (j = 0 ; j < degree[i] ; ++j)
       printf("%d\t", neighbors[i][j]);
@@ -418,7 +418,7 @@ FILE *open_output_file (char *type) {
 
   // print the column headers
   fprintf(file, "rho");
-  for (i = 0 ; i < N ; ++i) {
+  for (i = 0 ; i < I ; ++i) {
     fprintf(file, ",performance%d,interval%d", i, i);
   }
   fprintf(file, "\n");
@@ -431,7 +431,7 @@ void initialize_lambda (long double rho) {
 
   total_lambda = 0.;
 
-  for (i = 0 ; i < N ; ++i) {
+  for (i = 0 ; i < I ; ++i) {
     lambda[i] = rho * S * proportion[i] / mean_size;
     total_lambda += lambda[i];
   }
@@ -458,11 +458,9 @@ int main(int argc, char **argv) {
   delta = 1.96;     // P(-delta < X < delta) = 95% (with X ~ N(0,1))
 
   for (rho = .05 ; rho < .995 ; rho += .05) {
-    printf("rho = %Le\n", rho);
-
     // initialization
     initialize_lambda(rho);
-    for (i = 0 ; i < N ; ++i) {
+    for (i = 0 ; i < I ; ++i) {
       average_delay[i] = 0.;
       average_service_rate[i] = 0.;
     }
@@ -471,7 +469,7 @@ int main(int argc, char **argv) {
     for (r = 0 ; r < R ; ++r) {
       simulation();
 
-      for (i = 0 ; i < N ; ++i) {
+      for (i = 0 ; i < I ; ++i) {
         delay[i][r] = xT[i] / lambda[i];
         average_delay[i] += delay[i][r];
 
@@ -482,7 +480,7 @@ int main(int argc, char **argv) {
 
     // output delay
     fprintf(delay_file, "%Le", rho);
-    for (i = 0 ; i < N ; ++i) {
+    for (i = 0 ; i < I ; ++i) {
       average_delay[i] /= R;
       deviation = 0.;
       for (r = 0 ; r < R ; ++r)
@@ -494,7 +492,7 @@ int main(int argc, char **argv) {
 
     // output service rate
     fprintf(service_rate_file, "%Le", rho);
-    for (i = 0 ; i < N ; ++i) {
+    for (i = 0 ; i < I ; ++i) {
       average_service_rate[i] /= R;
       deviation = 0.;
       for (r = 0 ; r < R ; ++r)
@@ -505,12 +503,12 @@ int main(int argc, char **argv) {
     fprintf(service_rate_file, "\n");
   }
 
-  for (i = 0 ; i < N ; ++i) free(neighbors[i]);
+  for (i = 0 ; i < I ; ++i) free(neighbors[i]);
   free(zipf_distribution);
 
   fclose(delay_file);
   fclose(service_rate_file);
 
-  printf("\n\n");
+  printf("\n");
   exit(0);
 }
