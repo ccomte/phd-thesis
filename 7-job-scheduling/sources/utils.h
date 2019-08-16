@@ -10,9 +10,9 @@
 #include <float.h>
 
 // global constants
-#define R 10            // number of independent runs for each data point
-#define WARMUP 10000    // number of warm-up steps
-#define STEADY 10000    // number of steps in steady state
+#define R 100           // number of independent runs for each data point
+#define WARMUP 1000000  // number of warm-up steps
+#define STEADY 1000000  // number of steps in steady state
 #define MAX 100000      // queue length
 
 // constants that depend on the example
