@@ -4,7 +4,7 @@
 
 # compilation
 
-gcc -O3 -o scheduling-and-balancing-exact.out sources/scheduling-and-balancing-exact.c -lm
+gcc -O3 -o scheduling-and-balancing-exact.out scheduling-and-balancing-exact.c -lm
 
 
 
