@@ -51,11 +51,11 @@ gcc -o random-zipf-scheduling.out sources/random-zipf-scheduling.c sources/utils
 
 
 # S = 100 servers
-./random-bimodal-fcfs.out data/random-2-bimodal-0 2 1 5 25 1
+#./random-bimodal-fcfs.out data/random-2-bimodal-0 2 1 5 25 1
 #./random-bimodal-scheduling.out data/random-2-bimodal-1 2 1 5 25 1 1
 #./random-bimodal-scheduling.out data/random-2-bimodal-5 2 1 5 25 1 5
 
-#./random-hyperexp-fcfs.out data/random-2-hyperexp-0 2 1 5 25 1
+./random-hyperexp-fcfs.out data/random-2-hyperexp-0 2 1 5 25 1
 #./random-hyperexp-scheduling.out data/random-2-hyperexp-1 2 1 5 25 1 1
 #./random-hyperexp-scheduling.out data/random-2-hyperexp-5 2 1 5 25 1 5
 
