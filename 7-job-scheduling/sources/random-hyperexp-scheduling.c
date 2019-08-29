@@ -365,7 +365,6 @@ int main(int argc, char **argv) {
     }
     fprintf(delay_file, "%Le,%Le,%Le\n", rho,
         average_delay, delta * sqrt(deviation / (R-1)) / sqrt(R));
-    fprintf(delay_file, "\n");
 
     // output service rate
     average_service_rate /= R;
