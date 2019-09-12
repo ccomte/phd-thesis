@@ -15,9 +15,9 @@ long double varrho[K];  // traffic intensity of each type
 long double *p[K];      // probability that a given server cannot serve
                         // a given number of jobs of each type
 
-long double **pi;      // unnormalized stationary measure, with pi[0][0] = 1.
-long double **piL0;    // unnormalized product pi L
-long double **piL1;    // unnormalized product pi L
+long double **pi;       // unnormalized stationary measure, with pi[0][0] = 1.
+long double **piL0;     // unnormalized product pi L
+long double **piL1;     // unnormalized product pi L
 
 
 
