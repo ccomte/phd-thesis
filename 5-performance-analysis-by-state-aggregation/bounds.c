@@ -131,7 +131,7 @@ int main(int argc, char **argv) {
       argv[1], argv[2], argv[3], argv[4], argv[5]);
   file = fopen(file_name, "w");
 
-  // write headers in the files
+  // write headers in the file
   fprintf(file, "alpha");
   for (k = 0 ; k < K ; ++k) {
     fprintf(file, ",upper%d,lower%d", k+1, k+1);
