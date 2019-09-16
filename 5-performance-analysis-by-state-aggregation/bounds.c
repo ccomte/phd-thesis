@@ -28,7 +28,7 @@ void compute_mean (long double *L, long double *psi) {
   int i, j, k;
   long double rate;
 
-  // initialization
+  // initialize
   for (i = 0 ; i <= m ; ++i) {
     for (j = 0 ; j <= m ; ++j) {
       pi[i][j] = 0.;
@@ -46,30 +46,33 @@ void compute_mean (long double *L, long double *psi) {
     for (j = 0 ; j <= m ; ++j) {
       rate = S * (1. - p[0][i] * p[1][j]) - i * varrho[0] - j * varrho[1];
 
+      // compute pi[i][j]
       if (i > 0) pi[i][j] += (m - i + 1) * varrho[0] * pi[i-1][j];
       if (j > 0) pi[i][j] += (m - j + 1) * varrho[1] * pi[i][j-1];
       if (i + j > 0) pi[i][j] /= rate;
       (*psi) += pi[i][j];
 
+      // compute piL0[i][j]
       if (i > 0) {
-        piL0[i][j] = i * varrho[0] * pi[i][j];
-        piL0[i][j] += (m - i + 1) * varrho[0] * (pi[i-1][j] + piL0[i-1][j]);
+        piL0[i][j] = i * varrho[0] * pi[i][j]
+          + (m - i + 1) * varrho[0] * (pi[i-1][j] + piL0[i-1][j]);
         if (j > 0) piL0[i][j] += (m - j + 1) * varrho[1] * piL0[i][j-1];
         piL0[i][j] /= rate;
         L[0] += piL0[i][j];
       }
 
+      // compute piL1[i][j]
       if (j > 0) {
-        piL1[i][j] = j * varrho[1] * pi[i][j];
+        piL1[i][j] = j * varrho[1] * pi[i][j]
+          + (m - j + 1) * varrho[1] * (pi[i][j-1] + piL1[i][j-1]);
         if (i > 0) piL1[i][j] += (m - i + 1) * varrho[0] * piL1[i-1][j];
-        piL1[i][j] += (m - j + 1) * varrho[1] * (pi[i][j-1] + piL1[i][j-1]);
         piL1[i][j] /= rate;
         L[1] += piL1[i][j];
       }
     }
   }
 
-  // normalization
+  // normalize
   (*psi) = 1. / (*psi);
   L[0] /= m;
   L[1] /= m;
