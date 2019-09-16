@@ -1,4 +1,4 @@
-# Resource management in computer clusters: algorithm design and performance analysis
+# Resource Management in Computer Clusters: Algorithm Design and Performance Analysis
 
 Numerical results presented in my Ph.D. thesis.
 
