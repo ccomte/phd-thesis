@@ -11,6 +11,7 @@ gcc -O3 -o dynamic-hyperexp.out sources/dynamic-hyperexp.c -lm
 
 
 # folder
+
 mkdir -p data
 
 
@@ -42,7 +43,8 @@ mkdir -p data
 
 ./dynamic-exact.out -f "data/multi-dynamic-exact" \
   -k 2 -i 10 -l 6 \
-  -c "1 0 1 0 1 0 1 1 1 1 1 1 1 1 0 1 0 1 0 1" -r "1 4 1 1 1 1 1 1 1 1 1 1" \
+  -c "1 0 1 0 1 0 1 1 1 1 1 1 1 1 0 1 0 1 0 1" \
+  -r "1 4 1 1 1 1 1 1 1 1 1 1" \
   -m 3 -d .5
 
 #./dynamic-exp.out -f "data/multi-dynamic-simu-exp" \

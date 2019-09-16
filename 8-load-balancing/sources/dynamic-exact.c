@@ -25,7 +25,7 @@ uint64_t notcompatible[MAX_K][MAX_I + 1]; /* list of computers each type
                                              is **not** compatible with */
 
 double mui[MAX_I];      /* normalized service capacity of each computer */
-double mu;              /* total capacity rate */
+double mu;              /* overall capacity of the cluster */
 double nuk[MAX_K];      /* normalized arrival rate of each job type */
 double *nuA;            /* normalized arrival rate function */
 
@@ -41,7 +41,7 @@ uint64_t mask;    /* mask to detect the number of available tokens of a given co
 uint64_t ymax;    /* maximum aggregate state to consider */
 uint64_t Amax;    /* maximum active set to consider */
 uint64_t *ei;     /* I-dimensional unit vectors */
-double *piy;      /* stationary measure with piy[0] = 1 */
+double *piy;      /* unnormalized stationary measure, with piy[0] = 1 */
 double pi;        /* normalizating constant of the stationary distribution */
 
 
@@ -83,11 +83,11 @@ static inline int is_valid (uint64_t y) {
 /*** COMPUTATIONS ***/
 
 /* basic operations
- * - access the number of available tokens from computer i:
+ * access the number of available tokens from computer i:
  *   y >> (length * i) & mask
- * - check whether there is at least one available token from computer i:
+ * check whether there is at least one available token from computer i:
  *   ((y >> (length * i)) & mask) > 0
- * - remove one available token of computer i:
+ * remove one available token of computer i:
  *   y -= (ONE << (length * i))
  */
 
@@ -118,7 +118,7 @@ void stationary (double rho) {
   }
 }
 
-double blocking (int k) {
+double loss (int k) {
   uint64_t i, t, y, carry;
   double betak;
 
@@ -127,7 +127,7 @@ double blocking (int k) {
   carry = 0;
 
   while (!carry) {
-    /* update the blocking probability */
+    /* update the loss probability */
     betak += piy[y];
 
     /* update y */
@@ -180,7 +180,9 @@ double mean (int i) {
 
   Li = 0.;
   for (y = ONE ; y < ymax ; ++y) {
-    if (is_valid(y)) Li += ((y >> (length * i)) & mask) * piy[y];
+    if (is_valid(y)) {
+      Li += ((y >> (length * i)) & mask) * piy[y];
+    }
   }
 
   return elli[i] - (Li / pi);
@@ -235,7 +237,7 @@ void read_inputs (int argc, char **argv) {
         /* number of computers */
         I = atoi(optarg);
         if (I > MAX_I) {
-          fprintf(stderr, "Option -n: the number of computers"
+          fprintf(stderr, "Option -i: the number of computers"
               "cannot be larger than %d.\n", MAX_I);
           exit(EXIT_FAILURE);
         }
@@ -253,7 +255,7 @@ void read_inputs (int argc, char **argv) {
         }
 
         if (i == 0) {
-          fprintf(stderr, "Option -l: you should specify the number of tokens.\n");
+          fprintf(stderr, "Option -l: the numbers of tokens of each computer.\n");
           exit(EXIT_FAILURE);
         }
 
@@ -393,7 +395,9 @@ void print_inputs () {
   printf("%lu job type(s) and %lu computer(s)\n\n", K, I);
 
   /* numbers of tokens of each computer */
-  for (i = 0 ; i < I ; ++i) printf("Computer %lu: %lu token(s)\n", i, elli[i]);
+  for (i = 0 ; i < I ; ++i) {
+    printf("Computer %lu: %lu token(s)\n", i, elli[i]);
+  }
   printf("\n");
 
   /* computer-to-type compatibilities */
@@ -519,10 +523,10 @@ int main (int argc, char **argv) {
     /* print data in the output file */
     fprintf(file, "%e", rho);
 
-    /* per-type blocking probability */
+    /* per-type loss probability */
     beta = 0.;
     for (k = 0 ; k < K ; ++k) {
-      betak = blocking(k);
+      betak = loss(k);
       fprintf(file, ",%e", betak);
       beta += nuk[k] * betak;
     }

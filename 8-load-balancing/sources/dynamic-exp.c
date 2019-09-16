@@ -11,43 +11,43 @@
 
 /* Inputs */
 
-int K;                /* number of job types */
-int I;                /* number of computers */
+int K;                  /* number of job types */
+int I;                  /* number of computers */
 
-int elli[MAX_I];      /* number of tokens at each computer */
+int elli[MAX_I];        /* number of tokens at each computer */
 int Ki[MAX_I][MAX_K + 1];   /* adjacency list of the compatibility
                                graph between computers and types */
 
-double mui[MAX_I];    /* normalized service capacity of each computer */
-double mu;            /* total service capacity */
-double nuk[MAX_K];    /* normalized arrival rate of each job type */
-double event_rate;    /* event rate */
-double threshold;     /* probability that the next event is an arrival
+double mui[MAX_I];      /* normalized service capacity of each computer */
+double mu;              /* overall capacity of the cluster */
+double nuk[MAX_K];      /* normalized arrival rate of each job type */
+double event_rate;      /* event rate */
+double threshold;       /* probability that the next event is an arrival
                          rather than a departure */
 
 
 
 /* Variables of the simulation */
 
-double Rho;           /* largest load to consider */
-double delta;         /* step by which we increase the load */
-int R;                /* number of simulation runs for each load */
-double alpha = 1.96;  /* P(-alpha < X < alpha) = 95% with X ~ N(0,1) */
+double Rho;             /* largest load to consider */
+double delta;           /* step by which we increase the load */
+int R;                  /* number of simulation runs for each load */
+double alpha = 1.96;    /* P(-alpha < X < alpha) = 95% with X ~ N(0,1) */
 
-int warmup;           /* number of warm-up steps */
-int steady;           /* number of steps in steady state */
+int warmup;             /* number of warm-up steps */
+int steady;             /* number of steps in steady state */
 
-int xi[MAX_I];        /* number of jobs at each computer */
-int xk[MAX_K];        /* number of jobs of each type */
-int xik[MAX_I][MAX_K];      /* number of jobs of each type at each computer */
+int xi[MAX_I];          /* number of jobs at each computer */
+int xk[MAX_K];          /* number of jobs of each type */
+int xik[MAX_I][MAX_K];  /* number of jobs of each type at each computer */
 
 
 
 /* Circular buffer encoding the sequence of available tokens */
 
-int buffer[MAX_L];          /* circular buffer that contains the available tokens */
-int head;             /* position of the buffer head */
-int tail;             /* position of the buffer tail */
+int buffer[MAX_L];      /* circular buffer that contains the available tokens */
+int head;               /* position of the buffer head */
+int tail;               /* position of the buffer tail */
 
 int assignment[MAX_K];
 /* current assignment of each job type,
@@ -65,12 +65,12 @@ int empty[MAX_I];     /* cumulative number of times the timer of each computer e
 double etai[MAX_I];   /* empirical activity probability of each computer */
 
 int arrival[MAX_K];   /* cumulative number of arrivals within each type */
-int blocking[MAX_K];  /* cumulative number of blocked jobs within each type */
-double betak[MAX_K];  /* empirical blocking probability within each type */
+int loss[MAX_K];      /* cumulative number of lost jobs within each type */
+double betak[MAX_K];  /* empirical loss probability within each type */
 
 double T;             /* total time in steady state */
-double Lk[MAX_K];     /* empirical average number of jobs of each type */
-double Li[MAX_I];     /* empirical mean number of jobs at each computer */
+double Lk[MAX_K];     /* empirical expected number of jobs of each type */
+double Li[MAX_I];     /* empirical expected number of jobs at each computer */
 
 
 
@@ -170,7 +170,8 @@ static inline void remove_from_queue (int i) {
     next = buffer[q];
   }
 
-  /* release the types */
+  /* release the job types that would have been
+   * assigned to computer i upon arrival */
   nb_released = 0;
   t = 0;
   while ( (k = Ki[i][t]) != -1 ) {
@@ -181,7 +182,7 @@ static inline void remove_from_queue (int i) {
     ++t;
   }
 
-  /* reassign the released types */
+  /* reassign the released job types */
   if (head != tail) {
     p = (p + 1) % MAX_L;
     while ( nb_released && (p != tail) ) {
@@ -286,7 +287,7 @@ static inline int jump_and_update_counters () {
       remove_from_queue(i);
       ++xi[i]; ++xik[i][k]; ++xk[k];
       return 1;
-    } else ++blocking[k];
+    } else ++loss[k];
   } else {
     /* choose the computer */
     i = draw_departure_computer();
@@ -331,7 +332,7 @@ void simulation () {
     xk[k] = 0;
     Lk[k] = 0.;
     arrival[k] = 0;
-    blocking[k] = 0;
+    loss[k] = 0;
   }
 
   /* warmup */
@@ -347,7 +348,7 @@ void simulation () {
 
   /* compute metrics */
   for (k = 0 ; k < K ; ++k) {
-    betak[k] = 1. * blocking[k] / arrival[k];
+    betak[k] = 1. * loss[k] / arrival[k];
     Lk[k] /= T;
   }
   for (i = 0 ; i < I ; ++i) {
@@ -378,7 +379,7 @@ void read_inputs (int argc, char **argv) {
   for (k = 0 ; k < MAX_K ; ++k) nuk[k] = 0.;
   Rho = 5.;
   delta = .2;
-  R = 10;
+  R = 100;
   warmup = 1000000;
   steady = 1000000;
 
@@ -403,7 +404,7 @@ void read_inputs (int argc, char **argv) {
         /* number of computers */
         I = atoi(optarg);
         if (I > MAX_I) {
-          fprintf(stderr, "Option -n: the number of computers"
+          fprintf(stderr, "Option -i: the number of computers"
               "cannot be larger than %d.\n", MAX_I);
           exit(EXIT_FAILURE);
         }
