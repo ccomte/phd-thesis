@@ -12,4 +12,4 @@ The folder ``sources/`` gathers the source files for the exact and simulation re
 - ``dynamic-exact.c``: Exact results predicted by the model of Section 8.2.
 - ``dynamic-exp.c``: Simulation results under exponentially-distributed job sizes.
 - ``dynamic-hyperexp.c``: Simulation results under hyperexponentially-distributed job sizes.
-- ``utils.h`` and ``utils.c``: Libraries, constants, and random sampling functions used in the C programs.
+- ``utils.h``: Libraries, constants, and random sampling functions used in the C programs.
