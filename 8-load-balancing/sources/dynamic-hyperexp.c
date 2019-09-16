@@ -624,7 +624,7 @@ void read_inputs (int argc, char **argv) {
             "-f: output file name\n"
             "-k: number of job types\n"
             "-i: number of computers\n"
-            "-l: number of tokens of each class\n"
+            "-l: number of tokens of each computer\n"
             "-c: computer-to-type compatibilities, encoded as an adjacency matrix\n"
             "-r: per-type traffic intensities and per-computer capacities\n"
             "-m: maximum load to consider\n"
