@@ -24,7 +24,7 @@ uint64_t compatible[MAX_I][MAX_K]; /* compatiblity graph between computers and t
 uint64_t notcompatible[MAX_K][MAX_I + 1]; /* list of computers each type
                                              is **not** compatible with */
 
-double mui[MAX_I];      /* normalized service capacity of each computer */
+double mui[MAX_I];      /* normalized capacity of each computer */
 double mu;              /* overall capacity of the cluster */
 double nuk[MAX_K];      /* normalized arrival rate of each job type */
 double *nuA;            /* normalized arrival rate function */
@@ -38,7 +38,7 @@ double delta;     /* step by which we increase the load */
 
 uint64_t length;  /* number of bits to encode the number of available tokens of each computer */
 uint64_t mask;    /* mask to detect the number of available tokens of a given computer */
-uint64_t ymax;    /* maximum aggregate state to consider */
+uint64_t ymax;    /* maximum macrostate to consider */
 uint64_t Amax;    /* maximum active set to consider */
 uint64_t *ei;     /* I-dimensional unit vectors */
 double *piy;      /* unnormalized stationary measure, with piy[0] = 1 */
