@@ -21,20 +21,20 @@ mkdir -p data
   -k 1 -i 10 -l 6 \
   -c "1 1 1 1 1 1 1 1 1 1" \
   -r "1 1 1 1 1 1 4 4 4 4 4" \
-  -m 3 -d .5
+  -m 3 -d 1e-2
 
-#./dynamic-exp.out -f "data/single-dynamic-simu-exp" \
-#  -k 1 -i 10 -l 6 \
-#  -c "1 1 1 1 1 1 1 1 1 1" \
-#  -r "1 1 1 1 1 1 4 4 4 4 4" \
-#  -m 3 -d .4 -R 10 -w 6 -t 6
+./dynamic-exp.out -f "data/single-dynamic-simu-exp" \
+  -k 1 -i 10 -l 6 \
+  -c "1 1 1 1 1 1 1 1 1 1" \
+  -r "1 1 1 1 1 1 4 4 4 4 4" \
+  -m 3 -d .2 -R 100 -w 6 -t 6
 
-#./dynamic-hyperexp.out -f "data/single-dynamic-simu-hyperexp" \
-#  -k 1 -i 10 -l 6 \
-#  -c "1 1 1 1 1 1 1 1 1 1" \
-#  -r "1 1 1 1 1 1 4 4 4 4 4" \
-#  -s "1 5" \
-#  -m 3 -d .2 -R 10 -w 6 -t 6
+./dynamic-hyperexp.out -f "data/single-dynamic-simu-hyperexp" \
+  -k 1 -i 10 -l 6 \
+  -c "1 1 1 1 1 1 1 1 1 1" \
+  -r "1 1 1 1 1 1 4 4 4 4 4" \
+  -s "1 5" \
+  -m 3 -d .2 -R 100 -w 6 -t 6
 
 
 
@@ -43,15 +43,15 @@ mkdir -p data
 ./dynamic-exact.out -f "data/multi-dynamic-exact" \
   -k 2 -i 10 -l 6 \
   -c "1 0 1 0 1 0 1 1 1 1 1 1 1 1 0 1 0 1 0 1" -r "1 4 1 1 1 1 1 1 1 1 1 1" \
-  -m 3 -d .5
+  -m 3 -d 1e-2
 
-#./dynamic-exp.out -f "data/multi-dynamic-simu-exp" \
-#  -k 2 -i 10 -l 6 \
-#  -c "1 0 1 0 1 0 1 1 1 1 1 1 1 1 0 1 0 1 0 1" -r "1 4 1 1 1 1 1 1 1 1 1 1" \
-#  -m 3 -d .4 -R 10 -w 6 -t 6
+./dynamic-exp.out -f "data/multi-dynamic-simu-exp" \
+  -k 2 -i 10 -l 6 \
+  -c "1 0 1 0 1 0 1 1 1 1 1 1 1 1 0 1 0 1 0 1" -r "1 4 1 1 1 1 1 1 1 1 1 1" \
+  -m 3 -d .2 -R 100 -w 6 -t 6
 
-#./dynamic-hyperexp.out -f "data/multi-dynamic-simu-hyperexp" \
-#  -k 2 -i 10 -l 6 \
-#  -c "1 0 1 0 1 0 1 1 1 1 1 1 1 1 0 1 0 1 0 1" -r "1 4 1 1 1 1 1 1 1 1 1 1" \
-#  -s "1 2 1 5" \
-#  -m 3 -d .2 -R 10 -w 6 -t 6
+./dynamic-hyperexp.out -f "data/multi-dynamic-simu-hyperexp" \
+  -k 2 -i 10 -l 6 \
+  -c "1 0 1 0 1 0 1 1 1 1 1 1 1 1 0 1 0 1 0 1" -r "1 4 1 1 1 1 1 1 1 1 1 1" \
+  -s "1 2 1 5" \
+  -m 3 -d .2 -R 100 -w 6 -t 6
