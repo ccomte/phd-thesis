@@ -19,7 +19,7 @@ int Ki[MAX_I][MAX_K + 1];   /* adjacency list of the compatibility
                                graph between computers and types */
 
 double mui[MAX_I];    /* normalized service capacity of each computer */
-double mu;            /* total service capacity */
+double mu;            /* overall capacity of the cluster */
 double nuk[MAX_K];    /* normalized arrival rate of each job type */
 double nu;            /* total arrival rate */
 
@@ -52,7 +52,7 @@ int xik[MAX_I][2 * MAX_K];
  * xik[i][2*k+1] = number of type-k jobs with mean size 1 / kappa[2*k+1] at computer i
  */
 
-double theta;         /* total departure rate */
+double theta;         /* overall departure rate */
 double thetai[MAX_I]; /* unnormalized departure rate from each computer */
 double thetaik[MAX_I][2 * MAX_K];
 /* unnormalized departure rate of the jobs of each type and size from each computer */
@@ -76,12 +76,12 @@ int assignment[MAX_K];
 char name[40];        /* name of the output file */
 
 int arrival[MAX_K];   /* cumulative number of arrivals within each type */
-int blocking[MAX_K];  /* cumulative number of blocked jobs within each type */
-double betak[MAX_K];  /* empirical blocking probability within each type */
+int loss[MAX_K];      /* cumulative number of lost jobs within each type */
+double betak[MAX_K];  /* empirical loss probability within each type */
 
 double T;             /* total time in steady state */
-double Lk[MAX_K];     /* empirical average number of jobs of each type */
-double Li[MAX_I];     /* empirical mean number of jobs at each computer */
+double Lk[MAX_K];     /* empirical expected number of jobs of each type */
+double Li[MAX_I];     /* empirical expected number of jobs at each computer */
 double etai[MAX_I];   /* empirical activity probability of each computer */
 
 
@@ -182,7 +182,8 @@ static inline void remove_from_queue (int i) {
     next = buffer[q];
   }
 
-  /* release the types */
+  /* release the job types that would have been
+   * assiend to computer i upon arrival */
   nb_released = 0;
   t = 0;
   while ( (k = Ki[i][t]) != -1 ) {
@@ -193,7 +194,7 @@ static inline void remove_from_queue (int i) {
     ++t;
   }
 
-  /* reassign the released types */
+  /* reassign the released job types */
   if (head != tail) {
     p = (p + 1) % MAX_L;
     while ( nb_released && (p != tail) ) {
@@ -330,7 +331,7 @@ static inline int jump_and_update_counters () {
       update_departure(i);
 
       return 1;
-    } else ++blocking[k];
+    } else ++loss[k];
   } else {
     /* choose the computer */
     i = draw_departure_computer();
@@ -387,7 +388,7 @@ void simulation () {
     xk[k] = 0;
     Lk[k] = 0.;
     arrival[k] = 0;
-    blocking[k] = 0;
+    loss[k] = 0;
   }
 
   /* warmup */
@@ -403,7 +404,7 @@ void simulation () {
 
   /* compute metrics */
   for (k = 0 ; k < K ; ++k) {
-    betak[k] = 1. * blocking[k] / arrival[k];
+    betak[k] = 1. * loss[k] / arrival[k];
     Lk[k] /= T;
   }
   for (i = 0 ; i < I ; ++i) {
@@ -441,7 +442,7 @@ void read_inputs (int argc, char **argv) {
   nu = 0.;
   Rho = 5.;
   delta = .2;
-  R = 10;
+  R = 100;
   warmup = 1000000;
   steady = 1000000;
 
@@ -466,7 +467,7 @@ void read_inputs (int argc, char **argv) {
         /* number of computers */
         I = atoi(optarg);
         if (I > MAX_I) {
-          fprintf(stderr, "Option -n: the number of computers"
+          fprintf(stderr, "Option -i: the number of computers"
               "cannot be larger than %d.\n", MAX_I);
           exit(EXIT_FAILURE);
         }
@@ -623,7 +624,7 @@ void read_inputs (int argc, char **argv) {
             "-f: output file name\n"
             "-k: number of job types\n"
             "-i: number of computers\n"
-            "-l: number of tokens of each class\n"
+            "-l: number of tokens of each computer\n"
             "-c: computer-to-type compatibilities, encoded as an adjacency matrix\n"
             "-r: per-type traffic intensities and per-computer capacities\n"
             "-m: maximum load to consider\n"
@@ -708,8 +709,10 @@ void print_inputs () {
   /* job sizes within each type */
   printf("Job sizes within each type:\n");
   for (k = 0 ; k < K ; ++k) {
-    printf("Type %d: p = %.3e, size 1 = %.3e, size 2 = %.3e\n", k, p[k], 1. / kappa[2*k], 1. / kappa[2*k+1]);
-    printf("        mean = %.3e, ratio = %.3e\n", p[k] / kappa[2*k] + (1. - p[k]) / kappa[2*k+1], 1. / p[k] - 1.);
+    printf("Type %d: p = %.3e, size 1 = %.3e, size 2 = %.3e\n",
+        k, p[k], 1. / kappa[2*k], 1. / kappa[2*k+1]);
+    printf("        mean = %.3e, ratio = %.3e\n",
+        p[k] / kappa[2*k] + (1. - p[k]) / kappa[2*k+1], 1. / p[k] - 1.);
   }
   printf("\n");
 }
@@ -813,7 +816,8 @@ int main (int argc, char **argv) {
         betar[r] += nuk[k] * (p[k] / kappa[2*k] + (1. - p[k]) / kappa[2*k+1]) * betak[k];
         Lrk[r][k] = Lk[k];
         Lr[r] += Lk[k];
-        gammark[r][k] = rho * mu * nuk[k] * (p[k] / kappa[2*k] + (1. - p[k]) / kappa[2*k+1]) * (1. - betak[k]) / Lk[k];
+        gammark[r][k] = rho * mu * nuk[k] * \
+                        (p[k] / kappa[2*k] + (1. - p[k]) / kappa[2*k+1]) * (1. - betak[k]) / Lk[k];
       }
 
       for (i = 0 ; i < I ; ++i) {

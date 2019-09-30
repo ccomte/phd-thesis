@@ -9,7 +9,7 @@
 #define ONE 1UL
 #define INT_LENGTH 64   /* length of the unsigned integers used to encode the state */
 #define MAX_K 10        /* maximum number of job types */
-#define MAX_I 10        /* maximum number of token classes */
+#define MAX_I 10        /* maximum number of pools */
 #define MAX_S 10        /* maximum number of computers */
 
 
@@ -24,22 +24,22 @@
 /* Inputs */
 
 uint64_t K;       /* number of job types */
-uint64_t I;       /* number of token classes */
+uint64_t I;       /* number of pools */
 uint64_t S;       /* number of computers */
 
-uint64_t elli[MAX_I];   /* number of tokens of each class */
-uint64_t Ki[MAX_I][MAX_K];          /* compatiblity graph between classes and types,
+uint64_t elli[MAX_I];   /* number of tokens of each pool */
+uint64_t Ki[MAX_I][MAX_K];          /* compatiblity graph between pools and types,
                                        encoded as an adjacency matrix */
-uint64_t notKi[MAX_K][MAX_I + 1];   /* list of classes each type
-                                       is **not** compatible with */
-uint64_t Si[MAX_I][MAX_S];          /* compatiblity graph between classes and computers,
+uint64_t notKi[MAX_K][MAX_I + 1];   /* list of pools each type
+                                       can **not** be assigned to */
+uint64_t Si[MAX_I][MAX_S];          /* compatiblity graph between pools and computers,
                                        encoded as an adjacency matrix */
-uint64_t notSi[MAX_S][MAX_I + 1];   /* list of classes each computer
-                                       is **not** compatible with */
+uint64_t notSi[MAX_S][MAX_I + 1];   /* list of pools each computer
+                                       is **not** part of */
 
-double mus[MAX_S];      /* normalized service capacity of each computer */
+double mus[MAX_S];      /* normalized capacity of each computer */
 double *muA;            /* normalized service rate function */
-double mu;              /* total capacity rate */
+double mu;              /* overall capacity of the cluster */
 
 double nuk[MAX_K];      /* normalized arrival rate of each job type */
 double *nuA;            /* normalized arrival rate function */
@@ -51,10 +51,10 @@ double *nuA;            /* normalized arrival rate function */
 double Rho;       /* largest load to consider */
 double delta;     /* step by which we increase the load */
 
-uint64_t length;  /* number of bits to encode the number of available tokens of each class */
-uint64_t mask;    /* mask to detect the number of available tokens of a given class */
-uint64_t xymax;   /* maximum aggregate state to consider */
-uint64_t Amax;    /* maximum active set of active classes to consider */
+uint64_t length;  /* number of bits to encode the number of available tokens of each pool */
+uint64_t mask;    /* mask to detect the number of available tokens of a given pool */
+uint64_t xymax;   /* maximum macrostate to consider */
+uint64_t Amax;    /* maximum active set to consider */
 uint64_t *ei;     /* I-dimensional unit vectors */
 
 double *Phix;     /* balance function of the departure rates */
@@ -103,11 +103,11 @@ static inline int is_valid (uint64_t x) {
 /*** COMPUTATIONS ***/
 
 /* basic operations
- * - access the number of available tokens from computer i:
+ * access the number of available tokens from computer i:
  *   (x >> (length * i)) & mask
- * - check whether there is at least one available token from computer i:
+ * check whether there is at least one available token from computer i:
  *   ((x >> (length * i)) & mask) > 0
- * - remove one available token of computer i:
+ * remove one available token of computer i:
  *   x -= (ONE << (length * i))
  */
 
@@ -126,7 +126,7 @@ void compute_Phix () {
       A = 0;
       for (i = 0 ; i < I ; ++i) {
         if ( (x >> (length * i)) & mask ) {
-          /* there is at least one job of class i in service */
+          /* there is at least one job of pool i in service */
           Phix[x] += Phix[x - ei[i]];
           A += ONE << i;
         }
@@ -176,7 +176,7 @@ void compute_piy (double rho) {
       A = 0;
       for (i = 0 ; i < I ; ++i) {
         if ( (y >> (length * i)) & mask ) {
-          /* there is at least one available token from class i */
+          /* there is at least one available token from pool i */
           Lambday[y] += Lambday[y - ei[i]];
           A += ONE << i;
         }
@@ -192,7 +192,7 @@ void compute_piy (double rho) {
 
 
 
-double blocking (int k) {
+double loss (int k) {
   uint64_t i, t, y, carry;
   double betak;
 
@@ -201,7 +201,7 @@ double blocking (int k) {
   carry = 0;
 
   while (!carry) {
-    /* update the blocking probability */
+    /* update the loss probability */
     betak += piy[y];
 
     /* update y */
@@ -285,7 +285,7 @@ void read_inputs (int argc, char **argv) {
         /* number of pools */
         I = atoi(optarg);
         if (I > MAX_I) {
-          fprintf(stderr, "Option -i: the number of token classes"
+          fprintf(stderr, "Option -i: the number of pools"
               "cannot be larger than %d.\n", MAX_I);
           exit(EXIT_FAILURE);
         }
@@ -344,8 +344,8 @@ void read_inputs (int argc, char **argv) {
       case 'c':
         arg = strtok(optarg, " ");
 
-        /* class-to-type compatibilities,
-         * encoded as an adjacency matrix between classes and types */
+        /* pool-to-type compatibilities,
+         * encoded as an adjacency matrix between pools and types */
 
         for (i = 0 ; i < I ; ++i) {
           for (k = 0 ; k < K ; ++k) {
@@ -359,8 +359,8 @@ void read_inputs (int argc, char **argv) {
           }
         }
 
-        /* class-to-computer compatibilities,
-         * encoded as an adjacency matrix between classes and computers */
+        /* pool-to-computer compatibilities,
+         * encoded as an adjacency matrix between pools and computers */
 
         for (i = 0 ; i < I ; ++i) {
           for (s = 0 ; s < S ; ++s) {
@@ -426,8 +426,8 @@ void read_inputs (int argc, char **argv) {
             "-i: number of pools\n"
             "-s: number of computers\n"
             "-l: number of tokens of each pools\n"
-            "-c: class-to-type compatibilities, encoded as an adjacency matrix,"
-            " and class-to-computer compatibilities, again encoded as an adjacency matrix\n"
+            "-c: pool-to-type compatibilities, encoded as an adjacency matrix,"
+            " and pool-to-computer compatibilities, again encoded as an adjacency matrix\n"
             "-r: per-type arrival rates and per-computer capacities\n"
             "-m: maximum load to consider\n"
             "    (default value: 5)\n"
@@ -467,24 +467,24 @@ void print_inputs () {
   printf("Step by which we increase the load: %.3e\n\n", delta);
 
   /* numbers of types and computers */
-  printf("%lu job type(s), %lu class(es), and %lu computer(s)\n\n", K, I, S);
+  printf("%lu job type(s), %lu pool(s), and %lu computer(s)\n\n", K, I, S);
 
-  /* numbers of tokens of each class */
-  for (i = 0 ; i < I ; ++i) printf("Class %lu: %lu token(s)\n", i, elli[i]);
+  /* numbers of tokens of each pool */
+  for (i = 0 ; i < I ; ++i) printf("Pool %lu: %lu token(s)\n", i, elli[i]);
   printf("\n");
 
-  /* class-to-type compatibilities */
+  /* pool-to-type compatibilities */
   printf("Adjacency matrix of the compatiblity graph "
-      "between classes and types:\n");
+      "between pools and types:\n");
   for (i = 0 ; i < I ; ++i) {
     for (k = 0 ; k < K ; ++k) printf("%lu ", Ki[i][k]);
     printf("\n");
   }
   printf("\n");
 
-  /* class-to-computer compatibilities */
+  /* pool-to-computer compatibilities */
   printf("Adjacency matrix of the compatiblity graph "
-      "between classes and computers:\n");
+      "between pools and computers:\n");
   for (i = 0 ; i < I ; ++i) {
     for (s = 0 ; s < S ; ++s) printf("%lu ", Si[i][s]);
     printf("\n");
@@ -596,7 +596,7 @@ void initialize_arrays () {
   }
 
   /* list of adjacency lists for
-   * the compatibilities between classes and types */
+   * the compatibilities between pools and types */
   for (k = 0 ; k < K ; ++k) {
     t = 0;
     for (i = 0 ; i < I ; ++i) {
@@ -609,7 +609,7 @@ void initialize_arrays () {
   }
 
   /* list of adjacency lists for
-   * the compatibilities between classes and computers */
+   * the compatibilities between pools and computers */
   for (s = 0 ; s < S ; ++s) {
     t = 0;
     for (i = 0 ; i < I ; ++i) {
@@ -659,15 +659,15 @@ int main (int argc, char **argv) {
     /* print data in the output file */
     fprintf(file, "%e", rho);
 
-    /* per-type blocking probability */
+    /* per-type loss probability */
     beta = 0.;
     for (k = 0 ; k < K ; ++k) {
-      betak = blocking(k);
+      betak = loss(k);
       fprintf(file, ",%e", betak);
       beta += nuk[k] * betak;
     }
 
-    /* per-class mean number of jobs
+    /* per-pool expected number of jobs
      * and mean service rate */
     L = 0.;
     for (i = 0 ; i < I ; ++i) {
@@ -678,7 +678,7 @@ int main (int argc, char **argv) {
       else fprintf(file, ",%e,%e", 0., 0.);
     }
 
-    /* system-wide metrics */
+    /* cluster-wide metrics */
     fprintf(file, ",%e,%e,%e,%e\n",
         beta, rho * (1. - beta), L, rho * mu * (1. - beta) / L);
   }
