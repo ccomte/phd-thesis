@@ -6,7 +6,7 @@ Numerical results presented in the Ph.D. thesis <em>Resource Management in Compu
 
 The [video](https://youtu.be/1cBrZ5TF54Q) and [slides](https://www.win.tue.nl/~ccomte/talks/19-phd.pdf) of the Ph.D. defense give an overview of the thesis motivations and main contributions. For a deeper understanding, you can also read the [manuscript](https://pastel.archives-ouvertes.fr/tel-02413496).
 
-Each folder of the repository corresponds to a chapter or section of the manuscript. The notations are consistent and are therefore not recalled.
+Each folder of the repository corresponds to a chapter or section of the manuscript. The notations are consistent and are therefore not recalled. Each folder also contains instructions on how to run the corresponding numerical results.
 
 ## Licence
 
